@@ -1,0 +1,43 @@
+name: Deploy Docs
+description: Copies generated docs to the web server
+
+inputs:
+  source:
+    description: Local path to generated docs
+    required: true
+  site_name:
+    description: Name of site directory
+    required: true
+  subdomain:
+    description: Subdomain to deploy to
+    required: true
+  server_ip:
+    required: true
+  server_user:
+    required: true
+  ssh_key:
+    required: true
+  ssh_passphrase:
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Create directory on server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ inputs.server_ip }}
+        username: ${{ inputs.server_user }}
+        key: ${{ inputs.ssh_key }}
+        passphrase: ${{ inputs.ssh_passphrase }}
+        script: mkdir -p /var/www/${{ inputs.site_name }}/${{ inputs.subdomain }}
+
+    - name: Copy docs to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ inputs.server_ip }}
+        username: ${{ inputs.server_user }}
+        key: ${{ inputs.ssh_key }}
+        passphrase: ${{ inputs.ssh_passphrase }}
+        source: ${{ inputs.source }}
+        target: /var/www/${{ inputs.site_name }}/${{ inputs.subdomain }}/

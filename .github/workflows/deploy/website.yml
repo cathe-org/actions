@@ -1,0 +1,23 @@
+name: Deploy Website to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ inputs.server_ip }}
+          username: ${{ inputs.server_user }}
+          key: ${{ inputs.ssh_key }}
+          passphrase: ${{ inputs.ssh_passphrase }}
+          debug: true
+          script: |
+            cd /var/www/${{ inputs.site_name }}
+            git pull origin main
