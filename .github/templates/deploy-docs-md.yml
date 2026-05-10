@@ -1,0 +1,32 @@
+name: Deploy Docs MD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      subdomain: ${{ steps.vars.outputs.subdomain }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive subdomain
+        id: vars
+        run: echo "subdomain=$(echo ${{ github.event.repository.name }} | sed 's/-docs$//')" >> $GITHUB_OUTPUT
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material
+
+      - name: Build site
+        run: mkdocs build
+
+  deploy:
+    needs: prepare
+    uses: cathe-org/actions/.github/workflows/deploy-docs.yml@main
+    with:
+      subdomain: ${{ needs.prepare.outputs.subdomain }}
+      source: "./site/**"
+      site: ${{ vars.SITE }}
+    secrets: inherit
