@@ -13,6 +13,10 @@ on:
       org:
         required: true
         type: string
+      subdir:
+        required: false
+        type: string
+        default: ""
     secrets:
       WEBSERVER_IP:
         required: true
@@ -40,4 +44,9 @@ jobs:
               cd "$TARGET" && git pull origin main
             else
               git clone git@github.com:${{ inputs.org }}/${{ inputs.subdomain }}-docs.git "$TARGET"
+            fi
+
+            # Point Caddy at subdir if specified
+            if [ -n "${{ inputs.subdir }}" ]; then
+              ln -sfn "$TARGET/${{ inputs.subdir }}" "$TARGET/serve"
             fi
