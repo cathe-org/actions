@@ -10,6 +10,9 @@ on:
       subdomain:
         required: true
         type: string
+      org:
+        required: true
+        type: string
     secrets:
       WEBSERVER_IP:
         required: true
@@ -36,5 +39,5 @@ jobs:
             if [ -d "$TARGET/.git" ]; then
               cd "$TARGET" && git pull origin main
             else
-              git clone git@github.com:${{ inputs.site }}/${{ inputs.subdomain }}-docs.git "$TARGET"
+              git clone git@github.com:${{ inputs.org }}/${{ inputs.subdomain }}-docs.git "$TARGET"
             fi

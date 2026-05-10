@@ -19,6 +19,6 @@ jobs:
     uses: cathe-org/actions/.github/workflows/deploy-docs.yml@main
     with:
       subdomain: ${{ needs.prepare.outputs.subdomain }}
-      source: "./**"
       site: ${{ vars.SITE }}
+      org: cathe-org
     secrets: inherit
