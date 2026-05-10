@@ -25,8 +25,8 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.WEBSERVER_SERVER_IP }}
-          username: ${{ secrets.WEBSERVER_SERVER_USER }}
+          host: ${{ secrets.WEBSERVER_IP }}
+          username: ${{ secrets.WEBSERVER_USER }}
           key: ${{ secrets.WEBSERVER_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.WEBSERVER_SSH_PASSPHRASE }}
           script: |
