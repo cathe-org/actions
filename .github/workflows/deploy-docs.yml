@@ -4,13 +4,10 @@ description: Copies generated docs to the web server
 on:
   workflow_call:
     inputs:
-      subdomain:
-        required: true
-        type: string
-      source:
-        required: true
-        type: string
       site:
+        required: true
+        type: string
+      subdomain:
         required: true
         type: string
     secrets:
@@ -27,22 +24,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Create directory on server
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.WEBSERVER_IP }}
           username: ${{ secrets.WEBSERVER_USER }}
           key: ${{ secrets.WEBSERVER_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.WEBSERVER_SSH_PASSPHRASE }}
-          script: mkdir -p /var/www/${{ inputs.site }}/subdomains/${{ inputs.subdomain }}
-
-      - name: Copy to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.WEBSERVER_IP }}
-          username: ${{ secrets.WEBSERVER_USER }}
-          key: ${{ secrets.WEBSERVER_SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.WEBSERVER_SSH_PASSPHRASE }}
-          source: ${{ inputs.source }}
-          target: /var/www/${{ inputs.site }}/subdomains/${{ inputs.subdomain }}/
-          strip_components: 1
+          script: |
+            TARGET="/var/www/${{ inputs.site }}/subdomains/${{ inputs.subdomain }}"
+            if [ -d "$TARGET/.git" ]; then
+              cd "$TARGET" && git pull origin main
+            else
+              git clone git@github.com:${{ inputs.site }}/${{ inputs.subdomain }}-docs.git "$TARGET"
+            fi
