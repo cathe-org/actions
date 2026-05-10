@@ -8,13 +8,13 @@ on:
         required: true
         type: string
     secrets:
-      SERVER_IP:
+      WEBSERVER_IP:
         required: true
-      SERVER_USER:
+      WEBSERVER_USER:
         required: true
-      SSH_PRIVATE_KEY:
+      WEBSERVER_SSH_PRIVATE_KEY:
         required: true
-      SSH_PASSPHRASE:
+      WEBSERVER_SSH_PASSPHRASE:
         required: false
 
 jobs:
@@ -25,10 +25,10 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          host: ${{ secrets.WEBSERVER_SERVER_IP }}
+          username: ${{ secrets.WEBSERVER_SERVER_USER }}
+          key: ${{ secrets.WEBSERVER_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.WEBSERVER_SSH_PASSPHRASE }}
           script: |
             cd ${{ inputs.site_directory }}
             git pull origin main
