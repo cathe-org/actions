@@ -1,9 +1,21 @@
-name: Deploy Website to DigitalOcean
+name: Deploy to DigitalOcean
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      site_directory:
+        description: Directory on server e.g. /var/www/cathe.dev
+        required: true
+        type: string
+    secrets:
+      SERVER_IP:
+        required: true
+      SERVER_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_PASSPHRASE:
+        required: false
 
 jobs:
   deploy:
@@ -13,11 +25,10 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ inputs.server_ip }}
-          username: ${{ inputs.server_user }}
-          key: ${{ inputs.ssh_key }}
-          passphrase: ${{ inputs.ssh_passphrase }}
-          debug: true
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /var/www/${{ inputs.site_name }}
+            cd ${{ inputs.site_directory }}
             git pull origin main
