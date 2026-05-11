@@ -1,0 +1,45 @@
+name: Generate and Deploy MD from OCaml Docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material
+
+      - name: Generate markdown from OCaml source
+        run: python scripts/generate_docs.py
+
+      - name: Build site
+        run: mkdocs build
+
+      - name: Create subdomain directory on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: mkdir -p /var/www/${{ vars.SITE }}/subdomains/${{ github.event.repository.name }}
+
+      - name: Copy site to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "./site/**"
+          target: /var/www/${{ vars.SITE }}/subdomains/${{ github.event.repository.name }}/
+          strip_components: 1

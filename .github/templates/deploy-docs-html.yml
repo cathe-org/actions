@@ -1,4 +1,4 @@
-name: Deploy Docs HTML
+name: Deploy HTML Docs
 
 on:
   push:
@@ -20,5 +20,5 @@ jobs:
     with:
       subdomain: ${{ needs.prepare.outputs.subdomain }}
       site: ${{ vars.SITE }}
-      org: cathe-org
+      org: ${{ github.repository_owner }}
     secrets: inherit
