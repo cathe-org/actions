@@ -1,4 +1,4 @@
-name: Generate and Deploy OCaml Docs
+name: Generate and Deploy MD from OCaml Docs
 
 on:
   push:
@@ -10,16 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up OCaml
-        uses: ocaml/setup-ocaml@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ocaml-compiler: 5.x
+          python-version: '3.x'
 
-      - name: Install dependencies
-        run: opam install . --deps-only --with-doc -y
+      - name: Install MkDocs
+        run: pip install mkdocs-material
 
-      - name: Generate docs
-        run: opam exec -- dune build @doc
+      - name: Generate markdown from OCaml source
+        run: python scripts/generate_docs.py
+
+      - name: Build site
+        run: mkdocs build
 
       - name: Create subdomain directory on server
         uses: appleboy/ssh-action@v1.0.3
@@ -30,13 +33,13 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: mkdir -p /var/www/${{ vars.SITE }}/subdomains/${{ github.event.repository.name }}
 
-      - name: Copy docs to server
+      - name: Copy site to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "./_build/default/_doc/_html/"
+          source: "./site/**"
           target: /var/www/${{ vars.SITE }}/subdomains/${{ github.event.repository.name }}/
-          strip_components: 4
+          strip_components: 1
